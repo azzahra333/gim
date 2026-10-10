@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Little Universe Made for You 🌙</title>
+<!--
+  ============================================================
+  A LITTLE UNIVERSE MADE FOR YOU — birthday scrapbook website
+  ============================================================
+  Semua TEKS yang bisa kamu ganti ada di dalam <script> di bagian
+  bawah file ini, di dalam objek bernama CONFIG. Cari komentar
+  "GANTI DI SINI" untuk nemuin bagian yang gampang diedit.
+
+  File ini SATU FILE UTUH (HTML + CSS + JS). Tinggal upload file
+  ini bernama index.html ke repo GitHub Pages kamu, selesai.
+  Tidak butuh install apa-apa, tidak butuh server.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Satu-satunya hal eksternal di file ini: font dari Google Fonts.
+     Kalau koneksi internet pas dibuka lagi tidak ada, teks tetap
+     kebaca karena ada font cadangan (fallback) di CSS. -->
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ===================== DESIGN TOKENS ===================== */
+:root{
+  --baby-blue:#B9D9F5;
+  --cream:#FFF5E5;
+  --dusty:#5A7198;
+  --pink:#F5C6D6;
+  --white:#FFFFFF;
+  --ink:#32415A;        /* teks utama, biru keabu-abuan gelap */
+  --ink-soft:#5c6e84;
+  --shadow: 0 10px 26px rgba(50,65,90,.14);
+  --r-paper: 3px 14px 4px 16px/14px 4px 16px 3px; /* sudut kertas tidak rata */
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  font-family:'Nunito', sans-serif;
+  color:var(--ink);
+  background:var(--cream);
+  background-image:
+    radial-gradient(circle at 10% 0%, #ffffff66 0, transparent 45%),
+    repeating-linear-gradient(135deg, rgba(185,217,245,.35) 0 2px, transparent 2px 18px);
+  overflow-x:hidden;
+  position:relative;
+}
+h1,h2,h3{font-family:'Caveat', cursive; font-weight:700; margin:0; line-height:1.1;}
+p{margin:0;}
+button{font-family:inherit;}
+img,svg{max-width:100%; display:block;}
+:focus-visible{outline:3px solid var(--dusty); outline-offset:3px; border-radius:6px;}
+
+/* reduce motion: turn off decorative animation/transition globally */
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; scroll-behavior:auto !important;}
+}
+
+.wrap{max-width:640px; margin:0 auto; padding:0 18px;}
+.section{position:relative; padding:66px 0 20px;}
+.section-head{display:flex; align-items:baseline; gap:10px; margin-bottom:14px;}
+.section-head .tag{
+  font-family:'Nunito'; font-weight:800; font-size:11px; letter-spacing:.03em;
+  color:var(--dusty); background:#fff; border:1.5px dashed var(--dusty);
+  padding:3px 10px; border-radius:16px; white-space:nowrap;
+}
+.section-head h2{font-size:30px; color:var(--ink);}
+.hint{
+  font-family:'Caveat'; font-size:18px; color:var(--dusty); opacity:.85;
+  margin:-6px 0 14px;
+}
+
+/* ---- paper card: torn/soft-rounded uneven edges, not a generic rounded rect ---- */
+.paper{
+  background:var(--white);
+  border-radius: var(--r-paper);
+  box-shadow:var(--shadow);
+  padding:22px 22px;
+  position:relative;
+}
+.paper.cream{background:var(--cream);}
+.tilt-l{transform:rotate(-1.4deg);}
+.tilt-r{transform:rotate(1.2deg);}
+
+/* washi tape accents */
+.tape{
+  position:absolute; height:26px; width:76px;
+  background:linear-gradient(90deg, var(--baby-blue), #d7eaf9);
+  opacity:.9; box-shadow:0 2px 3px rgba(0,0,0,.08);
+}
+.tape.pink{background:linear-gradient(90deg, var(--pink), #fbdfe8);}
+
+/* buttons */
+.btn{
+  display:inline-flex; align-items:center; gap:8px; cursor:pointer;
+  font-family:'Nunito'; font-weight:800; font-size:14.5px;
+  background:var(--dusty); color:#fff; border:none;
+  padding:12px 22px; border-radius:40px;
+  box-shadow:0 5px 0 #3f5572; transition:transform .1s;
+}
+.btn:active{transform:translateY(4px); box-shadow:0 1px 0 #3f5572;}
+.btn.pink{background:#e592ab; box-shadow:0 5px 0 #c86e88;}
+.btn.pink:active{box-shadow:0 1px 0 #c86e88;}
+.btn.blue{background:#6fa8dc; box-shadow:0 5px 0 #4c7fb1;}
+.btn.blue:active{box-shadow:0 1px 0 #4c7fb1;}
+.btn[disabled]{opacity:.45; cursor:not-allowed; box-shadow:none; transform:none;}
+.btn-sm{padding:8px 16px; font-size:13px; border-radius:30px; box-shadow:0 3px 0 rgba(0,0,0,.18);}
+
+/* fade-up reveal driven by IntersectionObserver */
+.reveal{opacity:0; transform:translateY(16px); transition:opacity .6s ease, transform .6s ease;}
+.reveal.in{opacity:1; transform:translateY(0);}
+
+/* ---------------- floating chrome: music + progress ---------------- */
+.chrome-float{
+  position:fixed; z-index:60; display:flex; align-items:center; gap:8px;
+}
+#musicBtn{
+  position:fixed; right:14px; bottom:64px; z-index:61;
+  width:50px; height:50px; border-radius:50%; border:none; cursor:pointer;
+  background:var(--white); box-shadow:var(--shadow);
+  font-size:20px; display:flex; align-items:center; justify-content:center;
+}
+#progressBar{
+  position:fixed; left:0; right:0; bottom:0; z-index:59;
+  height:34px; background:#ffffffee; backdrop-filter:none;
+  border-top:2px solid var(--baby-blue);
+  display:flex; align-items:center; gap:10px; padding:0 14px;
+  font-size:12.5px; font-weight:700; color:var(--dusty);
+}
+#progressTrack{flex:1; height:7px; background:#e7eef6; border-radius:6px; overflow:hidden;}
+#progressFill{height:100%; width:0%; background:linear-gradient(90deg,var(--baby-blue),var(--pink)); transition:width .4s ease;}
+
+/* ===================== 00: THE LITTLE DOOR ===================== */
+#cover{
+  min-height:100svh; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  text-align:center; padding:40px 20px; position:relative;
+  background:
+    radial-gradient(circle at 20% 15%, #ffffffaa 0, transparent 35%),
+    linear-gradient(180deg, var(--baby-blue) 0%, var(--cream) 85%);
+}
+#cover .doodles{position:absolute; inset:0; pointer-events:none;}
+#cover .psst{font-family:'Caveat'; font-size:22px; color:var(--dusty); margin-bottom:14px;}
+#cover h1{font-size:clamp(30px,8vw,44px); color:var(--ink); max-width:360px;}
+.cover-envelope{
+  width:220px; margin:28px auto 10px; cursor:pointer; position:relative;
+  filter:drop-shadow(0 10px 18px rgba(50,65,90,.18));
+}
+.cover-envelope .co-body{
+  background:var(--cream); border:2px solid var(--dusty); border-radius:10px;
+  height:140px; position:relative; overflow:hidden;
+}
+.cover-envelope .co-flap{
+  position:absolute; top:-2px; left:-2px; right:-2px; height:80px;
+  background:var(--baby-blue); border:2px solid var(--dusty); border-bottom:none;
+  clip-path:polygon(0 0, 100% 0, 50% 100%);
+  transform-origin:top; transition:transform .7s cubic-bezier(.4,0,.2,1);
+  z-index:3;
+}
+.cover-envelope.open .co-flap{transform:rotateX(178deg);}
+.cover-envelope .co-ribbon-h, .cover-envelope .co-ribbon-v{
+  position:absolute; background:var(--pink); z-index:4; transition:opacity .4s, transform .5s;
+}
+.cover-envelope .co-ribbon-h{top:46%; left:-2px; right:-2px; height:14px; margin-top:-7px;}
+.cover-envelope .co-ribbon-v{left:46%; top:-2px; bottom:-2px; width:14px; margin-left:-7px;}
+.cover-envelope.open .co-ribbon-h{opacity:0; transform:scaleX(0);}
+.cover-envelope.open .co-ribbon-v{opacity:0; transform:scaleY(0);}
+.cover-envelope .co-seal{
+  position:absolute; left:50%; top:46%; transform:translate(-50%,-50%); z-index:5;
+  width:34px; height:34px; border-radius:50%; background:var(--dusty); color:#fff;
+  display:flex; align-items:center; justify-content:center; font-size:15px;
+  transition:opacity .35s, transform .35s;
+}
+.cover-envelope.open .co-seal{opacity:0; transform:translate(-50%,-50%) scale(.4);}
+.cover-envelope .co-paper{
+  position:absolute; left:10%; right:10%; bottom:6px; top:28px; z-index:2;
+  background:#fff; border-radius:6px; box-shadow:0 2px 6px rgba(0,0,0,.08);
+  transition:transform .8s cubic-bezier(.3,.9,.3,1) .25s;
+  display:flex; align-items:center; justify-content:center; text-align:center; padding:10px;
+}
+.cover-envelope.open .co-paper{transform:translateY(-54px);}
+.co-paper span{font-family:'Caveat'; font-size:16px; color:var(--dusty);}
+#cover .cover-hint{font-size:13.5px; color:var(--ink-soft); margin-top:16px;}
+#enterBtn{margin-top:22px; display:none;}
+#enterBtn.show{display:inline-flex;}
+
+/* ===================== heart-crack component ===================== */
+.heart-crack-wrap{
+  width:120px; height:114px; margin:0 auto; position:relative; cursor:pointer;
+}
+.heart-crack-wrap.big{width:150px; height:143px;}
+.heart-piece{
+  position:absolute; inset:0; background:var(--pink);
+  transition:transform .5s cubic-bezier(.3,.6,.3,1), opacity .3s;
+}
+.heart-piece.l{clip-path:path('M50,30 C35,10 0,15 0,40 C0,60 25,75 50,95 L50,30 Z');}
+.heart-piece.r{clip-path:path('M50,30 C65,10 100,15 100,40 C100,60 75,75 50,95 L50,30 Z');}
+.heart-crack-wrap.wobble{animation: wobble .4s ease;}
+@keyframes wobble{0%,100%{transform:rotate(0)}25%{transform:rotate(-6deg)}75%{transform:rotate(6deg)}}
+.crack-line{
+  position:absolute; left:50%; top:8%; width:5px; height:0;
+  background:#fff; transform:translateX(-50%); transform-origin:top; opacity:0;
+  clip-path:polygon(40% 0%,60% 10%,30% 24%,70% 38%,20% 52%,65% 66%,35% 82%,55% 100%,45% 100%);
+}
+.heart-crack-wrap.cracking .crack-line{opacity:1; height:84%; transition:height .3s ease;}
+.heart-crack-wrap.split .heart-piece.l{transform:translate(-18px,4px) rotate(-14deg);}
+.heart-crack-wrap.split .heart-piece.r{transform:translate(18px,-4px) rotate(14deg);}
+.heart-crack-wrap.split .crack-line{opacity:0;}
+.mini-letter{
+  max-width:360px; margin:14px auto 0; background:var(--cream); border-radius:4px 16px 4px 16px;
+  box-shadow:var(--shadow); padding:18px 20px; display:none; font-size:14.5px; line-height:1.75;
+  white-space:pre-line;
+}
+.mini-letter.show{display:block; animation:popin .35s ease;}
+@keyframes popin{from{opacity:0; transform:translateY(8px) scale(.98)} to{opacity:1; transform:translateY(0) scale(1)}}
+.signoff{text-align:right; font-family:'Caveat'; font-size:20px; color:var(--dusty); margin-top:8px;}
+
+/* ===================== puppy doodle (CSS/SVG, bukan Snoopy) ===================== */
+.puppy{width:118px; margin:0 auto;}
+.puppy .wag{transform-origin:85% 70%; animation:wag 1.6s ease-in-out infinite;}
+@keyframes wag{0%,100%{transform:rotate(0)}50%{transform:rotate(14deg)}}
+
+/* ===================== letter w/ stamp ===================== */
+.letter-page{position:relative;}
+.stamp{
+  position:absolute; top:-10px; right:10px; width:52px; height:60px;
+  background:var(--baby-blue); border:2px dashed #fff; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; font-size:20px;
+  box-shadow:0 4px 8px rgba(0,0,0,.1); transform:rotate(6deg);
+}
+.stamp-secret{
+  display:none; margin-top:12px; font-family:'Caveat'; font-size:19px; color:var(--dusty);
+  border-top:1.5px dashed var(--baby-blue); padding-top:10px;
+}
+.stamp-secret.show{display:block; animation:popin .35s ease;}
+.letter-para{opacity:0; transform:translateY(10px); transition:opacity .6s, transform .6s; margin-bottom:12px; font-size:15.5px; line-height:1.85;}
+.letter-para.in{opacity:1; transform:translateY(0);}
+
+/* ===================== catch game ===================== */
+.game-box{
+  position:relative; height:300px; border-radius:16px 4px 16px 4px; overflow:hidden;
+  background:linear-gradient(180deg,#dcecfb,#f6fbfe 75%); border:2px solid #fff; box-shadow:var(--shadow);
+}
+.game-hud{
+  position:absolute; top:8px; left:8px; right:8px; z-index:3; display:flex; justify-content:space-between;
+  font-weight:800; font-size:13px; background:#ffffffd9; padding:6px 12px; border-radius:20px; color:var(--ink);
+}
+.falling{position:absolute; top:-30px; font-size:25px; background:none; border:none; cursor:pointer; padding:4px;}
+.game-msg{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; text-align:center; padding:20px; background:#f6fbfee8; z-index:4;}
+
+/* ===================== open-when envelopes ===================== */
+.ow-grid{display:grid; gap:12px;}
+.ow-env{
+  background:var(--white); border-radius:4px 16px 4px 16px; box-shadow:0 4px 10px rgba(50,65,90,.1);
+  overflow:hidden; border:1.5px solid #eee3d0;
+}
+.ow-head{
+  width:100%; text-align:left; border:none; background:none; cursor:pointer; padding:14px 18px;
+  font-family:'Caveat'; font-size:19px; color:var(--ink); display:flex; align-items:center; gap:10px;
+}
+.ow-head .seal{width:18px; height:18px; border-radius:50%; background:var(--pink); flex:none; transition:transform .3s;}
+.ow-env.open .ow-head .seal{transform:scale(0);}
+.ow-body{max-height:0; overflow:hidden; transition:max-height .4s ease;}
+.ow-env.open .ow-body{max-height:220px;}
+.ow-body p{margin:0; padding:0 18px 16px; font-size:14.5px; line-height:1.75; color:var(--ink-soft);}
+
+/* ===================== memory match ===================== */
+.mem-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; max-width:340px; margin:0 auto;}
+.mcard{aspect-ratio:1; border-radius:10px; background:var(--dusty); border:none; cursor:pointer; font-size:22px; color:transparent; transition:background .25s;}
+.mcard.flip{background:#fff; color:#000;}
+.mcard.matched{background:var(--baby-blue); color:#000; cursor:default;}
+.mem-meta{display:flex; justify-content:space-between; max-width:340px; margin:0 auto 10px; font-size:13px; font-weight:800; color:var(--dusty);}
+.sentence-box{max-width:340px; margin:14px auto 0; text-align:center; font-family:'Caveat'; font-size:21px; color:var(--dusty); min-height:28px;}
+
+/* ===================== piece by piece puzzle ===================== */
+.puzzle{display:grid; grid-template-columns:repeat(3,78px); grid-template-rows:repeat(3,78px); gap:4px; background:var(--dusty); padding:4px; border-radius:10px; margin:0 auto; width:max-content;}
+.ptile{background:var(--baby-blue); border:none; border-radius:6px; font-weight:800; font-size:26px; color:var(--ink); cursor:pointer;}
+.ptile.blank{background:transparent; cursor:default;}
+
+/* ===================== hidden hearts scene ===================== */
+.scene{position:relative; background:var(--cream); border-radius:14px; padding:30px 20px; box-shadow:var(--shadow); min-height:230px;}
+.scene-item{position:absolute; font-size:30px; background:none; border:none; cursor:pointer;}
+.scene-item.found{opacity:.25; animation:none; cursor:default;}
+.scene-item:not(.found){animation:floaty 2.6s ease-in-out infinite;}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.found-heart{position:absolute; font-size:16px; opacity:0; pointer-events:none;}
+.found-heart.pop{animation:popfade .9s ease forwards;}
+@keyframes popfade{0%{opacity:1; transform:translateY(0) scale(1)}100%{opacity:0; transform:translateY(-26px) scale(1.3)}}
+.chest-wrap{text-align:center; margin-top:18px;}
+.code-box{display:none; max-width:300px; margin:14px auto 0;}
+.code-box.show{display:block;}
+.code-box input{width:70px; text-align:center; font-size:20px; padding:8px; border-radius:10px; border:2px solid var(--baby-blue); font-weight:800;}
+.code-hint{font-size:13px; color:var(--ink-soft); margin-top:6px;}
+.chest-reward{display:none; margin-top:14px; background:#fff; border-radius:10px; padding:16px; box-shadow:var(--shadow);}
+.chest-reward.show{display:block; animation:popin .4s ease;}
+
+/* ===================== cake decorator ===================== */
+.cake-stage{display:flex; justify-content:center; margin-bottom:16px;}
+.cake-svg{width:180px;}
+.option-row{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; justify-content:center;}
+.swatch{width:34px; height:34px; border-radius:50%; border:3px solid #fff; cursor:pointer; box-shadow:0 2px 6px rgba(0,0,0,.15);}
+.swatch.active{outline:3px solid var(--dusty);}
+.chip{padding:8px 14px; border-radius:20px; border:2px solid var(--baby-blue); background:#fff; cursor:pointer; font-weight:700; font-size:13px;}
+.chip.active{background:var(--baby-blue);}
+.candle{cursor:pointer;}
+.flame{transform-origin:center bottom; transition:opacity .3s, transform .3s;}
+.flame.out{opacity:0; transform:scale(.2);}
+.cake-msg{text-align:center; margin-top:10px; min-height:24px; font-family:'Caveat'; font-size:20px; color:var(--dusty);}
+
+/* ===================== jar / gifts / quiz generic ===================== */
+.center{text-align:center;}
+.result-note{display:none; max-width:360px; margin:14px auto 0; background:#fff; border-radius:12px; padding:16px 18px; box-shadow:var(--shadow); font-size:14.5px;}
+.result-note.show{display:block; animation:popin .35s ease;}
+.gift-row{display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin:14px 0;}
+.gift-box{width:72px; height:64px; background:var(--baby-blue); border-radius:8px; border:none; cursor:pointer; position:relative; font-size:26px;}
+.gift-box:after{content:"🎀"; position:absolute; top:-14px; left:50%; transform:translateX(-50%); font-size:18px;}
+.gift-box.opened{background:#e2eef9;}
+.quiz-opt{display:block; width:100%; text-align:left; background:#fff; border:2px solid #fff; border-radius:10px; padding:11px 15px; margin-bottom:8px; cursor:pointer; font-size:14.5px; box-shadow:0 3px 8px rgba(50,65,90,.07);}
+.quiz-opt.correct{border-color:#8fcf9d; background:#eafbee;}
+.quiz-fb{font-size:13.5px; color:var(--ink-soft); min-height:18px; margin-top:4px;}
+
+/* ===================== final secret ===================== */
+#finalScene{text-align:center;}
+.final-letter{max-width:460px; margin:16px auto 0; background:#fff; border-radius:4px 18px 4px 18px; box-shadow:var(--shadow); padding:24px; display:none; text-align:left; font-size:15.5px; line-height:1.85; white-space:pre-line;}
+.final-letter.show{display:block; animation:popin .5s ease;}
+.confetti{position:fixed; top:-12px; width:8px; height:13px; z-index:70; pointer-events:none; animation:fall linear forwards;}
+@keyframes fall{to{transform:translateY(112vh) rotate(540deg); opacity:.85;}}
+
+footer{text-align:center; padding:60px 20px 120px;}
+</style>
+</head>
+<body>
+
+<!-- ===================== 00. THE LITTLE DOOR ===================== -->
+<section id="cover">
+  <div class="psst">psst...</div>
+  <h1>seseorang membuat dunia kecil<br>khusus untukmu.</h1>
+
+  <div class="cover-envelope" id="coverEnv" onclick="openCover()">
+    <div class="co-body">
+      <div class="co-paper"><span>buka aku ya ♡</span></div>
+    </div>
+    <div class="co-flap"></div>
+    <div class="co-ribbon-h"></div>
+    <div class="co-ribbon-v"></div>
+    <div class="co-seal">♡</div>
+  </div>
+  <div class="cover-hint">ketuk amplopnya</div>
+  <button class="btn pink" id="enterBtn" onclick="enterUniverse()">Masuk ke Dunianya ✨</button>
+</section>
+
+<!-- ===================== 01. THE CRACKED HEART ===================== -->
+<section class="section" id="heart1-section">
+  <div class="wrap">
+    <div class="section-head"><span class="tag">01</span><h2>Retakan Pertama</h2></div>
+    <p class="hint">coba ketuk hati ini</p>
+    <div class="heart-crack-wrap" id="heartCrack1" onclick="crackHeart('heartCrack1','miniLetter1')">
+      <div class="crack-line"></div>
+      <div class="heart-piece l"></div>
+      <div class="heart-piece r"></div>
+    </div>
+    <div class="mini-letter" id="miniLetter1"></div>
+  </div>
+</section>
+
+<!-- ===================== 02. A LETTER JUST FOR YOU ===================== -->
+<section class="section" id="letter1-section">
+  <div class="wrap">
+    <div class="section-head"><span class="tag">02</span><h2>A Letter Just For You</h2></div>
+    <div class="paper letter-page tilt-l" id="letterPage">
+      <button class="stamp" onclick="toggleStamp()" title="ada sesuatu di balik perangko">✉</button>
+      <div id="letterParas"></div>
+      <div class="stamp-secret" id="stampSecret"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 03. GAME — CATCH MY HEARTS ===================== -->
+<section class="section" id="catch-section">
+  <div class="wrap">
+    <div class="section-head"><span class="tag">03</span><h2>Game: Catch My Hearts</h2></div>
+    <p class="hint">tangkap hati sebanyak mungkin dalam 20 detik, pakai satu jari juga bisa</p>
+    <div class="game-box" id="catchBox">
+      <div class="game-hud"><span>Skor <b id="cScore">0</b></span><span><b id="cTime">20</b>s</span></div>
+      <div class="game-msg" id="catchStart">
+        <div style="font-size:34px;">🐾</div>
+        <p style="margin:0; max-width:240px; font-size:14.5px;">Setiap hati yang kamu tangkap mewakili satu alasan aku sayang kamu.</p>
+        <button class="btn" onclick="startCatch()">Mulai</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 04. OPEN WHEN... ===================== -->
+<section class="section" id="ow-section">
+  <div class="wrap">
+    <div class="section-head"><span class="tag">04</span><h2>Open When...</h2></div>
+    <p class="hint">pilih sesuai suasana hatimu sekarang</p>
+    <div class="ow-grid" id="owGrid"></div>
+  </div>
+</section>
+
+<!-- ===================== 05. GAME — MATCH OUR HEARTS ===================== -->
+<section class="section" id="match-section">
+  <div class="wrap">
+    <div class="section-head"><span class="tag">05</span><h2>Game: Match Our Hearts</h2></div>
+    <p class="hint">cocokkan semua pasangan, nanti ada kalimat rahasia tersusun</p>
+    <div class="mem-meta"><span>Percobaan: <b id="memTries">0</b></span><span id="memStatus">0/6 pasang</span></div>
+    <div class="mem-grid" id="memGrid"></div>
+    <div class="sentence-box" id="sentenceBox"></div>
+  </div>
+</section>
+
+<!-- ===================== 06. GAME — PIECE BY PIECE ===================== -->
+<section class="section" id="puzzle-section">
+  <div class="wrap">
+    <div class="section-head"><span class="tag">06</span><h2>Game: Piece by Piece</h2></div>
+    <p class="hint">urutkan angka 1–8 dengan geser ke kotak kosong</p>
+    <div class="puzzle" id="puzzleGrid"></div>
+    <p class="cake-msg" id="puzzleMsg"></p>
+    <div class="center"><button class="btn btn-sm" onclick="shufflePuzzle(); renderPuzzle();">Acak Ulang</button></div>
+  </div>
+</section>
+
+<!-- ===================== 07/08. HIDDEN HEARTS + CRACK THE CODE (CHEST) ===================== -->
+<section class="section" id="hunt-section">
+  <div class="wrap">
+    <div class="section-head"><span class="tag">07</span><h2>Game: Hidden Hearts Hunt</h2></div>
+    <p class="hint">kayaknya puppy ini menyembunyikan sesuatu — ketuk benda yang mencurigakan</p>
+    <div class="mem-meta"><span id="huntCount">0/5 hati ditemukan</span><span id="huntHint" style="display:none;">petunjuk: coba sudut-sudut kotak ini</span></div>
+    <div class="scene" id="huntScene"></div>
+
+    <div class="chest-wrap">
+      <div style="font-size:52px;" id="chestEmoji">📦</div>
+      <p class="hint" style="margin-bottom:4px;">Game: Crack the Code — temukan dulu semua hati untuk membuka peti</p>
+      <div class="code-box" id="codeBox">
+        <p class="hint" id="codeHintText" style="margin-bottom:8px;"></p>
+        <input type="text" inputmode="numeric" id="codeInput" maxlength="4" placeholder="kode">
+        <button class="btn btn-sm" onclick="checkCode()">Periksa</button>
+        <p class="code-hint" id="codeFeedback"></p>
+      </div>
+      <div class="chest-reward" id="chestReward"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 09. GAME — MAKE THE BIRTHDAY CAKE ===================== -->
+<section class="section" id="cake-section">
+  <div class="wrap">
+    <div class="section-head"><span class="tag">08</span><h2>Game: Make Her Birthday Cake</h2></div>
+    <p class="hint">hias kuenya, lalu tiup lilinnya satu-satu</p>
+    <div class="cake-stage">
+      <svg class="cake-svg" viewBox="0 0 160 150" id="cakeSvg">
+        <ellipse cx="80" cy="128" rx="58" ry="10" fill="#e7d9c2"/>
+        <rect x="24" y="86" width="112" height="42" rx="8" fill="#f3e3cf"/>
+        <rect id="frostingLayer" x="24" y="70" width="112" height="24" rx="12" fill="var(--pink)"/>
+        <g id="toppingLayer"></g>
+        <g id="candleLayer"></g>
+      </svg>
+    </div>
+    <div class="option-row" id="frostingOpts"></div>
+    <div class="option-row" id="toppingOpts"></div>
+    <div class="option-row" id="candleOpts"></div>
+    <p class="cake-msg" id="cakeMsg">pilih warna frosting, topping, lalu jumlah lilin — lalu tiup satu-satu dengan mengetuknya</p>
+  </div>
+</section>
+
+<!-- ===================== 11. THE LONG LETTER ===================== -->
+<section class="section" id="long-letter-section">
+  <div class="wrap">
+    <div class="section-head"><span class="tag">09</span><h2>The Long Letter</h2></div>
+    <div class="paper tilt-r" id="longLetterPage" style="padding:26px 24px;">
+      <div id="longLetterParas"></div>
+      <div class="signoff" id="longLetterSign"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 19. A JAR FULL OF WISHES ===================== -->
+<section class="section" id="jar-section">
+  <div class="wrap center">
+    <div class="section-head" style="justify-content:center;"><span class="tag">10</span><h2>Game: A Jar Full of Wishes</h2></div>
+    <div style="font-size:70px;">🫙</div>
+    <button class="btn blue" onclick="pickWish()">Ambil Satu Kertas</button>
+    <div class="result-note" id="wishNote"></div>
+  </div>
+</section>
+
+<!-- ===================== 20 (bonus). HOW WELL DO YOU KNOW ME ===================== -->
+<section class="section" id="quiz-section">
+  <div class="wrap">
+    <div class="section-head"><span class="tag">11</span><h2>Game: How Well Do You Know Me?</h2></div>
+    <div class="paper cream" style="padding:22px;">
+      <p id="quizQ" style="font-weight:800; margin-bottom:12px; font-family:'Nunito';"></p>
+      <div id="quizOpts"></div>
+      <p class="quiz-fb" id="quizFb"></p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 16 (bonus). PICK A GIFT ===================== -->
+<section class="section" id="gift-section">
+  <div class="wrap center">
+    <div class="section-head" style="justify-content:center;"><span class="tag">12</span><h2>Game: Pick a Gift</h2></div>
+    <p class="hint">pilih satu kotak, boleh dibuka ulang kapan saja</p>
+    <div class="gift-row" id="giftRow"></div>
+    <div class="result-note" id="giftNote"></div>
+  </div>
+</section>
+
+<!-- ===================== PLAYLIST STICKER ===================== -->
+<section class="section" id="song-section">
+  <div class="wrap">
+    <div class="section-head"><span class="tag">13</span><h2>Lagu untuk Kamu</h2></div>
+    <div class="paper tilt-l" style="display:flex; gap:14px; align-items:center;">
+      <div style="width:54px; height:54px; border-radius:50%; background:var(--dusty); flex:none; position:relative;">
+        <div style="position:absolute; inset:38%; background:var(--cream); border-radius:50%;"></div>
+      </div>
+      <div>
+        <p style="font-family:'Caveat'; font-size:20px; margin-bottom:2px;">Risk It All — Bruno Mars</p>
+        <p style="font-size:13px; color:var(--ink-soft); margin-bottom:8px;">karena liriknya persis yang ingin aku bilang ke kamu</p>
+        <a class="btn btn-sm blue" href="https://brunomars.lnk.to/theromantic/youtube" target="_blank" rel="noopener">▶ Dengerin</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 20. THE LAST LITTLE SECRET ===================== -->
+<section class="section" id="finalScene">
+  <div class="wrap">
+    <div class="section-head" style="justify-content:center;"><span class="tag">14</span><h2>Rahasia Terakhir</h2></div>
+    <p class="hint">satu ketukan lagi, Sayang</p>
+    <div class="heart-crack-wrap big" id="heartCrackFinal" onclick="crackHeart('heartCrackFinal','finalLetter', true)">
+      <div class="crack-line"></div>
+      <div class="heart-piece l"></div>
+      <div class="heart-piece r"></div>
+    </div>
+    <div class="final-letter" id="finalLetter"></div>
+    <div class="center" id="finalButtons" style="display:none; margin-top:16px;">
+      <button class="btn btn-sm" onclick="document.getElementById('long-letter-section').scrollIntoView({behavior:'smooth'})">Baca Ulang Surat Utama</button>
+      <button class="btn btn-sm pink" onclick="window.scrollTo({top:0,behavior:'smooth'})">Ulangi dari Awal</button>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <h2 style="font-size:30px;">Selamat ulang tahun, sayangku ♡</h2>
+  <p style="font-size:13.5px; color:var(--ink-soft); margin-top:10px;">dibuat dengan sepenuh hati — Aku</p>
+</footer>
+
+<!-- floating music button -->
+<button id="musicBtn" onclick="toggleMusic()" title="putar / jeda musik">🔈</button>
+<!-- 🎵 GANTI DI SINI: taruh file musikmu sendiri (misalnya song.mp3) di folder
+     yang sama dengan index.html ini, lalu ganti "src" di bawah. Kalau file
+     tidak ada, tombol musik tetap aman dan tidak akan error. -->
+<audio id="bgMusic" loop preload="none">
+  <source src="song.mp3" type="audio/mpeg">
+</audio>
+
+<!-- progress bar -->
+<div id="progressBar">
+  <span id="progressLabel">0% kejutan ditemukan</span>
+  <div id="progressTrack"><div id="progressFill"></div></div>
+</div>
+
+<script>
+/* ======================================================================
+   CONFIG — semua teks & pengaturan yang bisa kamu ganti ada di sini.
+   Cari "GANTI DI SINI" untuk nemuin tiap bagian.
+====================================================================== */
+const CONFIG = {
+  // GANTI DI SINI: nama panggilan & tanda tangan
+  namaPanggilan: "Sayang",
+  namaPengirim: "Aku",
+  lamaBersama: "2 tahun",
+  codeAnswer: "2", // jawaban untuk Crack the Code (jumlah tahun bersama)
+
+  heartLetterShort:
+`Hai, Sayang.
+
+Ini cuma pengingat kecil: hari ini spesial karena ada kamu di dalamnya.
+Terima kasih sudah jadi orang yang selalu dengerin dan ngertiin aku,
+bahkan di hari-hari aku lagi susah dijelasin.`,
+
+  mainLetterParagraphs: [
+    "Hai, Sayang. Selamat ulang tahun.",
+    "Aku nggak pandai bikin kejutan besar, jadi aku bikin ini — dunia kecil yang isinya cuma hal-hal yang pengen aku bilang tapi sering kelewat di tengah hari yang sibuk.",
+    "Kamu itu orang yang selalu dengerin aku walau ceritaku muter-muter, yang ngerti aku bahkan sebelum aku selesai ngomong, dan yang kerja keras buat hidupnya sendiri tanpa pernah lupa peduli ke orang sekitar.",
+    "Scroll pelan-pelan ya. Di bawah banyak kejutan kecil nungguin kamu."
+  ],
+  stampSecret: "Psst — kamu salah satu alasan aku percaya sama cinta yang nggak buru-buru.",
+
+  openWhen: [
+    {title:"💌 Buka saat kamu lelah", body:"Kerja kerasmu udah cukup buat hari ini. Nggak apa-apa berhenti sebentar, Sayang. Istirahat bukan tanda kamu nyerah, itu tanda kamu tahu kapan harus jaga diri."},
+    {title:"💙 Buka saat kamu merindukanku", body:"Aku juga lagi kangen, mungkin di waktu yang sama. Jarak ini berat, tapi aku tetep milih kamu, hari ini dan besok-besok."},
+    {title:"⭐ Buka saat kamu membutuhkan semangat", body:"Kamu udah berjuang lebih jauh dari yang kamu sadari. Apa pun yang lagi kamu kejar sekarang, aku percaya kamu bisa sampai ke sana."},
+    {title:"😄 Buka saat kamu ingin tertawa", body:"Oke serius — kalau kamu baca ini sambil cemberut, coba senyum dikit. Nah. Itu aja udah bikin hari aku lebih baik."},
+    {title:"🫧 Buka saat kamu lupa betapa berharganya dirimu", body:"Kamu disayang bukan karena kamu sempurna, tapi karena kamu kamu — dengan segala pengertian, kesabaran, dan hati baikmu. Jangan lupa itu."}
+  ],
+
+  // 6 kata yang membentuk kalimat rahasia setelah semua pasangan di Match Our Hearts ditemukan
+  secretSentence: ["Kamu","adalah","alasan","aku","percaya","cinta."],
+  memoryIcons: ["💙","🐶","⭐","🎀","✉️","🎂"],
+
+  puzzleWinMessage: "Kamu nyelesaiin ini sabar banget, persis kayak caramu ngadepin aku. 💙",
+
+  // pesan yang muncul tiap hati tersembunyi ditemukan (digabung jadi satu kalimat di akhir)
+  hiddenHeartWords: ["Aku","selalu","bersyukur","ada","kamu."],
+  huntHintDelayMs: 9000, // kalau 9 detik belum nemu apa-apa, tampilkan petunjuk
+
+  chestCodeHint: `Kodenya adalah jumlah tahun kita udah saling sayang. (angka, 1 digit)`,
+  chestWrongHint: "Hmm, belum tepat. Coba inget-inget, ini tahun ke berapa buat kita?",
+  chestReward: "Peti kecil ini isinya cuma satu hal: makasih udah jadi bagian dari dua tahun paling berarti dalam hidupku. Semoga tahun-tahun berikutnya kita isi bareng-bareng lagi.",
+
+  cakeCandleMessage: "🎉 Selamat ulang tahun! Semoga semua permintaanmu pelan-pelan jadi kenyataan.",
+
+  longLetterParagraphs: [
+    "Setiap kali aku mikirin cara bilang makasih udah ada di hidupku, kata-kata rasanya selalu kurang. Jadi aku coba pelan-pelan aja ya.",
+    "Aku bersyukur banget kamu hadir. Bukan cuma di momen-momen besar, tapi juga di hal-hal kecil — caramu dengerin cerita random aku, caramu ngerti tanpa perlu aku jelasin ulang, caramu tetep sabar walau aku kadang ribet.",
+    "Jujur, jalanin hubungan jarak jauh itu nggak gampang. Ada hari-hari rasanya jarak ini berat banget. Tapi tiap kali aku inget gimana kamu tetep berusaha, tetep ngertiin, tetep ada walau lewat layar — itu yang bikin aku yakin ini semua layak diperjuangin.",
+    "Aku pengen kamu tau, aku dukung penuh apa pun yang lagi kamu kejar sekarang. Kerja kerasmu itu nggak sia-sia, dan aku percaya kamu bakal sampai di tempat yang kamu tuju. Jangan lupa istirahat, jangan lupa jaga diri — kamu nggak harus kuat terus-terusan.",
+    "Di umur barumu ini, aku doain kamu sehat, tenang, dan makin disayang sama orang-orang di sekitarmu. Semoga semua kebaikan yang kamu kasih ke dunia, balik lagi ke kamu berkali-kali lipat.",
+    "Aku sayang kamu. Bukan kalimat basa-basi, tapi kalimat yang aku maksud sungguh-sungguh, hari ini dan hari-hari sesudahnya."
+  ],
+
+  jarWishes: [
+    "Semoga kamu sehat selalu, lahir batin.",
+    "Semoga hatimu tenang, nggak gampang cemas sama hal-hal di luar kendalimu.",
+    "Semoga kerja kerasmu pelan-pelan kelihatan hasilnya.",
+    "Semoga kamu dikelilingi orang-orang yang beneran sayang kamu.",
+    "Semoga kamu makin berani ngejar apa pun yang kamu mau.",
+    "Semoga kamu nggak lupa istirahat di tengah semua kesibukanmu.",
+    "Semoga tahun ini kamu lebih sering ketawa lepas.",
+    "Semoga aku masih dikasih kesempatan buat ada di cerita bahagiamu."
+  ],
+
+  quiz: [
+    {q:"Udah berapa lama kita saling sayang?", opts:["1 tahun","2 tahun","3 tahun","Masih pengen nambah terus"], correct:1, fb:"Yap, 2 tahun — dan rasanya masih kurang."},
+    {q:"Sifat apa yang bikin aku paling bersyukur punya kamu?", opts:["Kerja kerasmu","Cara kamu dengerin & ngertiin aku","Hati penyayangmu","Semua itu, satu paket"], correct:3, fb:"Betul. Kamu emang satu paket lengkap."},
+    {q:"Kalau aku lagi capek, apa yang paling aku butuhin dari kamu?", opts:["Didengerin tanpa buru-buru dikasih solusi","Diingetin istirahat","Ditemenin diem-diem aja","Tergantung harinya, dan kamu biasanya tau"], correct:3, fb:"Tepat — kamu emang jago baca aku."},
+    {q:"Apa harapanku buat kamu di umur baru ini?", opts:["Sehat terus","Makin disayang sekitarmu","Kerja kerasmu kebayar","Semua itu, dan lebih banyak lagi"], correct:3, fb:"Semuanya itu, Sayang. Dan satu lagi: semoga kamu makin sayang diri sendiri juga."}
+  ],
+
+  gifts: [
+    {label:"🎁", type:"Pujian Tulus", content:"Kamu itu orang yang hangat tanpa harus berusaha jadi hangat. Itu langka, dan aku beruntung ngerasainnya."},
+    {label:"🎀", type:"Harapan Ulang Tahun", content:"Semoga tahun ini kamu lebih berani buat diri sendiri dulu, sebelum capek-capek mikirin orang lain."},
+    {label:"💌", type:"Surat Kecil", content:"Makasih udah bertahan di hubungan yang nggak selalu gampang ini bareng aku. Aku liat usahamu, dan aku nggak nganggep itu remeh."},
+    {label:"🎉", type:"Kejutan Lucu", content:"Fun fact: kamu adalah satu-satunya alasan aku ngecek jam cuma buat itung kapan bisa video call kamu lagi."}
+  ],
+
+  finalLetterParagraphs: [
+    "Kalau kamu udah sampai sini, makasih udah mau nelusurin semua kejutan kecil ini satu-satu.",
+    "Aku nggak bisa kasih dunia buat kamu. Tapi aku bisa kasih ini: perhatian yang nyata, kesabaran yang aku coba jaga, dan hati yang akan terus belajar nyayangin kamu dengan lebih baik tiap harinya.",
+    "Dua tahun ini banyak ngajarin aku soal gimana rasanya ditunggu, dipercaya, dan dimengerti tanpa harus minta. Itu semua dari kamu.",
+    "Selamat ulang tahun, Sayang. Semoga tahun ini baik buat kamu — dan semoga aku masih boleh ada di sampingmu buat ngerayain tahun-tahun berikutnya juga.",
+    "Selamat ulang tahun, sayangku."
+  ]
+};
+
+/* ======================================================================
+   SAFE STORAGE — tetap jalan walau localStorage tidak tersedia
+====================================================================== */
+const memoryFallback = {};
+const safeStorage = {
+  get(key){
+    try{ const v = localStorage.getItem(key); return v===null? null : JSON.parse(v); }
+    catch(e){ return memoryFallback[key] ?? null; }
+  },
+  set(key,val){
+    try{ localStorage.setItem(key, JSON.stringify(val)); }
+    catch(e){ memoryFallback[key]=val; }
+  }
+};
+
+/* ======================================================================
+   PROGRESS SYSTEM
+====================================================================== */
+const progress = safeStorage.get('universe_progress') || { games:{}, hearts:0 };
+const TOTAL_TRACK = 13; // jumlah game/interaksi yang dihitung progress (+hearts terpisah)
+function markDone(id){
+  progress.games[id] = true;
+  safeStorage.set('universe_progress', progress);
+  updateProgressBar();
+}
+function updateProgressBar(){
+  const gamesDone = Object.keys(progress.games).length;
+  const pct = Math.min(100, Math.round(((gamesDone/TOTAL_TRACK) + (progress.hearts/5))/2*100));
+  document.getElementById('progressFill').style.width = pct+'%';
+  document.getElementById('progressLabel').textContent = pct+'% kejutan ditemukan';
+}
+updateProgressBar();
+
+/* ======================================================================
+   00. COVER / LITTLE DOOR
+====================================================================== */
+function openCover(){
+  const env = document.getElementById('coverEnv');
+  if(env.classList.contains('open')) return;
+  env.classList.add('open');
+  setTimeout(()=>{ document.getElementById('enterBtn').classList.add('show'); }, 900);
+}
+function enterUniverse(){
+  document.getElementById('heart1-section').scrollIntoView({behavior:'smooth'});
+}
+
+/* ======================================================================
+   HEART CRACK — dipakai di bagian 01 dan final
+====================================================================== */
+const heartState = {}; // simpan status tiap heart-crack: sudah pecah atau belum
+function crackHeart(wrapId, letterId, isFinal){
+  const wrap = document.getElementById(wrapId);
+  const letter = document.getElementById(letterId);
+
+  if(heartState[wrapId]){
+    // sudah pecah sebelumnya -> tombol ini cuma buka/tutup suratnya
+    letter.classList.toggle('show');
+    return;
+  }
+  heartState[wrapId] = true;
+  wrap.classList.add('wobble');
+  setTimeout(()=>{
+    wrap.classList.remove('wobble');
+    wrap.classList.add('cracking');
+    setTimeout(()=>{
+      wrap.classList.add('split');
+      if(isFinal){
+        letter.innerHTML = CONFIG.finalLetterParagraphs.join('\n\n') +
+          '<div class="signoff">— '+CONFIG.namaPengirim+'</div>';
+        letter.classList.add('show');
+        document.getElementById('finalButtons').style.display='block';
+        launchConfetti();
+        markDone('finalHeart');
+      } else {
+        letter.textContent = CONFIG.heartLetterShort;
+        letter.classList.add('show');
+        markDone('heart1');
+      }
+    }, 380);
+  }, 400);
+}
+
+/* ======================================================================
+   02. LETTER — paragraphs fade-in via IntersectionObserver + stamp secret
+====================================================================== */
+(function buildLetter(){
+  const box = document.getElementById('letterParas');
+  CONFIG.mainLetterParagraphs.forEach(t=>{
+    const p = document.createElement('p');
+    p.className='letter-para';
+    p.textContent = t;
+    box.appendChild(p);
+  });
+})();
+function toggleStamp(){
+  const el = document.getElementById('stampSecret');
+  if(!el.textContent) el.textContent = CONFIG.stampSecret;
+  el.classList.toggle('show');
+  markDone('stamp');
+}
+
+/* ======================================================================
+   03. CATCH MY HEARTS
+====================================================================== */
+let cScore=0, cTime=20, cRunning=false, cTimerId=null, cSpawnId=null;
+function startCatch(){
+  document.getElementById('catchStart').remove();
+  cScore=0; cTime=20; cRunning=true;
+  document.getElementById('cScore').textContent=cScore;
+  document.getElementById('cTime').textContent=cTime;
+  cTimerId = setInterval(()=>{
+    cTime--; document.getElementById('cTime').textContent=cTime;
+    if(cTime<=0) endCatch();
+  },1000);
+  cSpawnId = setInterval(spawnFalling, 650);
+}
+function spawnFalling(){
+  if(!cRunning) return;
+  const box = document.getElementById('catchBox');
+  const b = document.createElement('button');
+  b.className='falling';
+  b.textContent='💙';
+  b.style.left = (Math.random()*82)+'%';
+  const dur = 2.3+Math.random()*1.5;
+  b.style.transition = 'top '+dur+'s linear';
+  b.onclick=(e)=>{ e.stopPropagation(); cScore++; document.getElementById('cScore').textContent=cScore; b.remove(); };
+  box.appendChild(b);
+  requestAnimationFrame(()=>{ b.style.top='280px'; });
+  setTimeout(()=>{ if(b.parentNode) b.remove(); }, dur*1000+60);
+}
+function endCatch(){
+  cRunning=false;
+  clearInterval(cTimerId); clearInterval(cSpawnId);
+  document.querySelectorAll('.falling').forEach(f=>f.remove());
+  const box=document.getElementById('catchBox');
+  const bonus = cScore>=12;
+  const msg=document.createElement('div');
+  msg.className='game-msg';
+  msg.innerHTML = '<div style="font-size:34px;">'+(bonus?'🏆':'💙')+'</div>'+
+    '<p style="margin:0; max-width:260px; font-size:14.5px;">Skormu <b>'+cScore+'</b>.'+
+    (bonus? ' Kamu dapet pesan bonus: kamu beneran ngerti cara bikin aku senyum. 🎉' : ' Tetep aja masih kalah banyak sama alasan aku sayang kamu.')+'</p>'+
+    '<button class="btn btn-sm" onclick="this.closest(\'.game-msg\').remove(); startCatch();">Main Lagi</button>';
+  box.appendChild(msg);
+  markDone('catch');
+}
+
+/* ======================================================================
+   04. OPEN WHEN...
+====================================================================== */
+(function buildOW(){
+  const grid = document.getElementById('owGrid');
+  CONFIG.openWhen.forEach((item,i)=>{
+    const wrap = document.createElement('div');
+    wrap.className='ow-env';
+    wrap.innerHTML = '<button class="ow-head" onclick="toggleOW(this)"><span class="seal"></span>'+item.title+'</button>'+
+      '<div class="ow-body"><p>'+item.body+'</p></div>';
+    grid.appendChild(wrap);
+  });
+})();
+function toggleOW(btn){
+  const env = btn.parentElement;
+  env.classList.toggle('open');
+  markDone('openwhen');
+}
+
+/* ======================================================================
+   05. MATCH OUR HEARTS (memory game + secret sentence)
+====================================================================== */
+let memDeck=[], memFlipped=[], memMatched=0, memLock=false, memTries=0;
+function buildMemory(){
+  const icons = CONFIG.memoryIcons;
+  memDeck = [...icons, ...icons].map(v=>({v})).sort(()=>Math.random()-0.5);
+  memFlipped=[]; memMatched=0; memLock=false; memTries=0;
+  document.getElementById('memTries').textContent=memTries;
+  document.getElementById('memStatus').textContent='0/'+icons.length+' pasang';
+  document.getElementById('sentenceBox').textContent='';
+  const grid = document.getElementById('memGrid');
+  grid.innerHTML='';
+  memDeck.forEach((c,i)=>{
+    const b=document.createElement('button');
+    b.className='mcard';
+    b.onclick=()=>flipMem(i);
+    grid.appendChild(b);
+  });
+}
+function flipMem(i){
+  if(memLock) return;
+  const cells = document.querySelectorAll('#memGrid .mcard');
+  const cell = cells[i];
+  if(cell.classList.contains('flip')||cell.classList.contains('matched')) return;
+  cell.classList.add('flip'); cell.textContent = memDeck[i].v;
+  memFlipped.push(i);
+  if(memFlipped.length===2){
+    memLock=true; memTries++;
+    document.getElementById('memTries').textContent=memTries;
+    const [a,b] = memFlipped;
+    if(memDeck[a].v===memDeck[b].v){
+      cells[a].classList.add('matched'); cells[b].classList.add('matched');
+      memMatched++;
+      document.getElementById('memStatus').textContent = memMatched+'/'+CONFIG.memoryIcons.length+' pasang';
+      memFlipped=[]; memLock=false;
+      if(memMatched===CONFIG.memoryIcons.length){
+        document.getElementById('sentenceBox').textContent = CONFIG.secretSentence.join(' ');
+        markDone('match');
+      }
+    } else {
+      setTimeout(()=>{
+        cells[a].classList.remove('flip'); cells[a].textContent='';
+        cells[b].classList.remove('flip'); cells[b].textContent='';
+        memFlipped=[]; memLock=false;
+      },650);
+    }
+  }
+}
+buildMemory();
+
+/* ======================================================================
+   06. PIECE BY PIECE (sliding puzzle 3x3)
+====================================================================== */
+let ptiles=[1,2,3,4,5,6,7,8,0];
+function renderPuzzle(){
+  const grid=document.getElementById('puzzleGrid');
+  grid.innerHTML='';
+  ptiles.forEach((v,i)=>{
+    const b=document.createElement('button');
+    b.className='ptile'+(v===0?' blank':'');
+    b.textContent = v===0?'':v;
+    b.onclick=()=>movePTile(i);
+    grid.appendChild(b);
+  });
+}
+function movePTile(i){
+  const blank = ptiles.indexOf(0);
+  const r=Math.floor(i/3), c=i%3, br=Math.floor(blank/3), bc=blank%3;
+  if((Math.abs(r-br)===1&&c===bc)||(Math.abs(c-bc)===1&&r===br)){
+    [ptiles[i],ptiles[blank]]=[ptiles[blank],ptiles[i]];
+    renderPuzzle();
+    if(ptiles.every((v,idx)=>v===[1,2,3,4,5,6,7,8,0][idx])){
+      document.getElementById('puzzleMsg').textContent = CONFIG.puzzleWinMessage;
+      markDone('puzzle');
+    }
+  }
+}
+function shufflePuzzle(){
+  document.getElementById('puzzleMsg').textContent='';
+  let blank = ptiles.indexOf(0);
+  for(let n=0;n<120;n++){
+    const r=Math.floor(blank/3), c=blank%3, opts=[];
+    if(r>0) opts.push(blank-3); if(r<2) opts.push(blank+3);
+    if(c>0) opts.push(blank-1); if(c<2) opts.push(blank+1);
+    const pick = opts[Math.floor(Math.random()*opts.length)];
+    [ptiles[blank],ptiles[pick]]=[ptiles[pick],ptiles[blank]];
+    blank=pick;
+  }
+}
+shufflePuzzle(); renderPuzzle();
+
+/* ======================================================================
+   07/08. HIDDEN HEARTS HUNT + CRACK THE CODE (treasure chest)
+====================================================================== */
+let heartsFound=0;
+const sceneObjects = [
+  {icon:'🐾', top:'10%', left:'8%'},
+  {icon:'🎀', top:'18%', left:'72%'},
+  {icon:'⭐', top:'60%', left:'15%'},
+  {icon:'🌸', top:'70%', left:'60%'},
+  {icon:'☁️', top:'38%', left:'45%'}
+];
+function buildHunt(){
+  const scene = document.getElementById('huntScene');
+  scene.innerHTML='';
+  sceneObjects.forEach((o,i)=>{
+    const b=document.createElement('button');
+    b.className='scene-item';
+    b.textContent=o.icon;
+    b.style.top=o.top; b.style.left=o.left;
+    b.setAttribute('aria-label','cari hati di sini');
+    b.onclick=()=>foundSceneHeart(b,i);
+    scene.appendChild(b);
+  });
+  setTimeout(()=>{ if(heartsFound<5) document.getElementById('huntHint').style.display='inline'; }, CONFIG.huntHintDelayMs);
+}
+function foundSceneHeart(btn,i){
+  if(btn.classList.contains('found')) return;
+  btn.classList.add('found');
+  btn.textContent='💙';
+  heartsFound++; progress.hearts = heartsFound; safeStorage.set('universe_progress', progress); updateProgressBar();
+  document.getElementById('huntCount').textContent = heartsFound+'/5 hati ditemukan';
+  const pop=document.createElement('div');
+  pop.className='found-heart pop';
+  pop.textContent = CONFIG.hiddenHeartWords[i] || '💙';
+  pop.style.top=btn.style.top; pop.style.left=btn.style.left;
+  document.getElementById('huntScene').appendChild(pop);
+  setTimeout(()=>pop.remove(),900);
+  if(heartsFound===5){
+    document.getElementById('huntHint').style.display='none';
+    document.getElementById('codeBox').classList.add('show');
+    document.getElementById('codeHintText').textContent = CONFIG.chestCodeHint;
+    markDone('hunt');
+  }
+}
+buildHunt();
+function checkCode(){
+  const val = document.getElementById('codeInput').value.trim();
+  const fb = document.getElementById('codeFeedback');
+  if(val === CONFIG.codeAnswer){
+    document.getElementById('chestEmoji').textContent='🗝️📦✨';
+    document.getElementById('chestReward').textContent = CONFIG.chestReward;
+    document.getElementById('chestReward').classList.add('show');
+    fb.textContent='';
+    markDone('chest');
+  } else {
+    fb.textContent = CONFIG.chestWrongHint;
+  }
+}
+
+/* ======================================================================
+   08. MAKE THE BIRTHDAY CAKE
+====================================================================== */
+const cakeState = { frosting:'#F5C6D6', toppings:[], candles:3 };
+const frostingChoices = ['#F5C6D6','#B9D9F5','#F5E6A8'];
+const toppingChoices = [{id:'spr',label:'Sprinkles'},{id:'cherry',label:'Ceri'},{id:'straw',label:'Strawberry'}];
+function buildCakeOptions(){
+  const fRow = document.getElementById('frostingOpts');
+  frostingChoices.forEach(c=>{
+    const s=document.createElement('button');
+    s.className='swatch'+(c===cakeState.frosting?' active':'');
+    s.style.background=c;
+    s.onclick=()=>{ cakeState.frosting=c; document.getElementById('frostingLayer').setAttribute('fill',c);
+      fRow.querySelectorAll('.swatch').forEach(x=>x.classList.remove('active')); s.classList.add('active'); markDone('cake'); };
+    fRow.appendChild(s);
+  });
+  const tRow = document.getElementById('toppingOpts');
+  toppingChoices.forEach(t=>{
+    const c=document.createElement('button');
+    c.className='chip'; c.textContent=t.label;
+    c.onclick=()=>{
+      const idx=cakeState.toppings.indexOf(t.id);
+      if(idx>-1){ cakeState.toppings.splice(idx,1); c.classList.remove('active'); }
+      else { cakeState.toppings.push(t.id); c.classList.add('active'); }
+      renderCakeToppings(); markDone('cake');
+    };
+    tRow.appendChild(c);
+  });
+  const cRow = document.getElementById('candleOpts');
+  [1,2,3,4,5].forEach(n=>{
+    const c=document.createElement('button');
+    c.className='chip'+(n===cakeState.candles?' active':'');
+    c.textContent=n+' lilin';
+    c.onclick=()=>{ cakeState.candles=n; renderCandles();
+      cRow.querySelectorAll('.chip').forEach(x=>x.classList.remove('active')); c.classList.add('active'); markDone('cake'); };
+    cRow.appendChild(c);
+  });
+}
+function renderCakeToppings(){
+  const g=document.getElementById('toppingLayer');
+  g.innerHTML='';
+  const symbolMap={spr:'🟡',cherry:'🔴',straw:'💗'};
+  cakeState.toppings.forEach((t,i)=>{
+    const x=36+i*30;
+    const el=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    el.setAttribute('cx',x); el.setAttribute('cy',76); el.setAttribute('r',4);
+    el.setAttribute('fill', t==='cherry'?'#d0455a': t==='straw'?'#f08aa6':'#f0cb6a');
+    g.appendChild(el);
+  });
+}
+function renderCandles(){
+  const g=document.getElementById('candleLayer');
+  g.innerHTML='';
+  const n=cakeState.candles;
+  const startX = 80-(n-1)*9;
+  for(let i=0;i<n;i++){
+    const x=startX+i*18;
+    const ns='http://www.w3.org/2000/svg';
+    const btnGroup=document.createElementNS(ns,'g');
+    btnGroup.setAttribute('class','candle');
+    btnGroup.setAttribute('data-lit','1');
+    btnGroup.innerHTML =
+      '<rect x="'+(x-2)+'" y="54" width="4" height="16" fill="#fff"/>'+
+      '<path class="flame" d="M'+x+' 44 C '+(x+5)+' 50, '+(x+5)+' 56, '+x+' 58 C '+(x-5)+' 56, '+(x-5)+' 50, '+x+' 44 Z" fill="#f0a84a"/>';
+    btnGroup.style.cursor='pointer';
+    btnGroup.onclick=()=>blowCandle(btnGroup);
+    g.appendChild(btnGroup);
+  }
+  document.getElementById('cakeMsg').textContent = n+' lilin menyala. Ketuk satu-satu buat niup.';
+}
+function blowCandle(group){
+  if(group.getAttribute('data-lit')==='0') return;
+  group.setAttribute('data-lit','0');
+  group.querySelector('.flame').classList.add('out');
+  const allOut = [...document.querySelectorAll('#candleLayer .candle')].every(c=>c.getAttribute('data-lit')==='0');
+  if(allOut){
+    document.getElementById('cakeMsg').textContent = CONFIG.cakeCandleMessage;
+    launchConfetti();
+    markDone('cake');
+  }
+}
+buildCakeOptions();
+renderCandles();
+
+/* ======================================================================
+   09. LONG LETTER
+====================================================================== */
+(function buildLongLetter(){
+  const box = document.getElementById('longLetterParas');
+  CONFIG.longLetterParagraphs.forEach(t=>{
+    const p=document.createElement('p');
+    p.className='letter-para';
+    p.style.marginBottom='14px';
+    p.textContent=t;
+    box.appendChild(p);
+  });
+  document.getElementById('longLetterSign').textContent = '— '+CONFIG.namaPengirim+', untuk '+CONFIG.namaPanggilan;
+  markDone('longletter-view');
+})();
+
+/* ======================================================================
+   10. JAR OF WISHES
+====================================================================== */
+function pickWish(){
+  const note = document.getElementById('wishNote');
+  const w = CONFIG.jarWishes[Math.floor(Math.random()*CONFIG.jarWishes.length)];
+  note.textContent = '🕊️ ' + w;
+  note.classList.remove('show'); void note.offsetWidth; note.classList.add('show');
+  markDone('jar');
+}
+
+/* ======================================================================
+   11. QUIZ
+====================================================================== */
+let qIndex=0;
+function renderQuiz(){
+  const quiz = CONFIG.quiz;
+  if(qIndex>=quiz.length){
+    document.getElementById('quizQ').textContent='Kuis selesai! Makasih udah main. 💙';
+    document.getElementById('quizOpts').innerHTML='';
+    document.getElementById('quizFb').textContent='';
+    markDone('quiz');
+    return;
+  }
+  const item=quiz[qIndex];
+  document.getElementById('quizQ').textContent=(qIndex+1)+'. '+item.q;
+  const wrap=document.getElementById('quizOpts'); wrap.innerHTML='';
+  document.getElementById('quizFb').textContent='';
+  item.opts.forEach((opt,i)=>{
+    const b=document.createElement('button');
+    b.className='quiz-opt';
+    b.textContent=String.fromCharCode(65+i)+'. '+opt;
+    b.onclick=()=>answerQuiz(i,b);
+    wrap.appendChild(b);
+  });
+}
+function answerQuiz(i,btn){
+  const item=CONFIG.quiz[qIndex];
+  document.querySelectorAll('.quiz-opt').forEach(o=>o.onclick=null);
+  if(i===item.correct) btn.classList.add('correct');
+  else document.querySelectorAll('.quiz-opt')[item.correct].classList.add('correct');
+  document.getElementById('quizFb').textContent=item.fb;
+  setTimeout(()=>{ qIndex++; renderQuiz(); }, 1700);
+}
+renderQuiz();
+
+/* ======================================================================
+   12. PICK A GIFT
+====================================================================== */
+(function buildGifts(){
+  const row=document.getElementById('giftRow');
+  CONFIG.gifts.forEach((g,i)=>{
+    const b=document.createElement('button');
+    b.className='gift-box';
+    b.textContent=g.label;
+    b.onclick=()=>{
+      b.classList.add('opened');
+      const note=document.getElementById('giftNote');
+      note.innerHTML = '<b>'+g.type+':</b><br>'+g.content;
+      note.classList.remove('show'); void note.offsetWidth; note.classList.add('show');
+      markDone('gift');
+    };
+    row.appendChild(b);
+  });
+})();
+
+/* ======================================================================
+   CONFETTI
+====================================================================== */
+function launchConfetti(){
+  const colors=['#F5C6D6','#B9D9F5','#F5E6A8','#fff','#5A7198'];
+  for(let i=0;i<70;i++){
+    const p=document.createElement('div');
+    p.className='confetti';
+    p.style.left=Math.random()*100+'vw';
+    p.style.background=colors[Math.floor(Math.random()*colors.length)];
+    p.style.animationDuration=(2+Math.random()*1.6)+'s';
+    p.style.borderRadius=Math.random()<0.5?'50%':'2px';
+    document.body.appendChild(p);
+    setTimeout(()=>p.remove(),4000);
+  }
+}
+
+/* ======================================================================
+   MUSIC CONTROL — tidak pernah autoplay, aman walau file tidak ada
+====================================================================== */
+let musicPlaying=false;
+function toggleMusic(){
+  const audio = document.getElementById('bgMusic');
+  const btn = document.getElementById('musicBtn');
+  if(!musicPlaying){
+    const p = audio.play();
+    if(p && p.catch){
+      p.then(()=>{ musicPlaying=true; btn.textContent='🔊'; })
+       .catch(()=>{ btn.textContent='🔇'; btn.title='file musik belum ditambahkan — lihat komentar di kode'; });
+    } else { musicPlaying=true; btn.textContent='🔊'; }
+  } else {
+    audio.pause(); musicPlaying=false; btn.textContent='🔈';
+  }
+}
+document.getElementById('bgMusic').addEventListener('error', ()=>{
+  document.getElementById('musicBtn').title='file musik belum ditambahkan — lihat komentar di kode';
+});
+
+/* ======================================================================
+   INTERSECTION OBSERVER — fade-up untuk section & letter paragraphs
+====================================================================== */
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); } });
+},{threshold:0.2});
+document.querySelectorAll('.letter-para').forEach(el=>io.observe(el));
+document.querySelectorAll('.section').forEach(el=>{ el.classList.add('reveal'); io.observe(el); });
+</script>
+</body>
+</html>
